@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>untitled</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://builds.handlebarsjs.com.s3.amazonaws.com/handlebars.min-latest.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.4.16/processing.min.js"></script>
+</head>
+<body>
+
+    <script id="write-tpl" type="text/x-handlebars-template">
+        <canvas data-processing-sources="processing.pde" width="{{width}}" height="{{height}}" style="background:{{background}};"></canvas>
+    </script>
+
+
+    <div id="content"></div>
+
+    <script>
+        $(document).ready(function(){
+            var data = {
+              width: 200,
+              height: 100,
+              background: "#000"
+            };
+
+            var template = Handlebars.compile($("#write-tpl").html());
+
+            $("#content").html(template(data));
+
+        });
+    </script>
+
+
+</body>
+</html>
