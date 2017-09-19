@@ -149,7 +149,7 @@
                                     {{/if}}
 
                                     <span class="reply-count-container"><span class="typcn typcn-arrow-back hvr-pulse-grow" style="color: black; font-size: 30px;"></span> {{replyCount}}</span>&nbsp;&nbsp;
-                                    <span class="like-count-container" style="cursor: pointer" title="{{likeTitle}}" data-proceed="{{likeProceed}}" data-blog-id="{{objectId}}"><span class="typcn typcn-heart hvr-pulse-grow" style="color: red; font-size: 30px;"></span> {{likesCount}}</span>
+                                    <span class="like-count-container" style="cursor: pointer" title="{{likeTitle}}" data-proceed="{{likeProceed}}" data-blog-id="{{objectId}}"><span class="typcn typcn-flash hvr-pulse-grow" style="color: red; font-size: 30px;"></span> {{likedBy.length}}</span>
                                     </div>
 
                                 </div>
@@ -206,62 +206,74 @@
                                     </table>
 
                                     <div>
-                                    <span class="reply-count-container"><span class="typcn typcn-arrow-back hvr-pulse-grow" style="color: black; font-size: 30px;"></span> {{replyCount}}</span>&nbsp;&nbsp;
-                                    <span class="like-count-container" style="cursor: pointer" title="{{likeTitle}}" data-proceed="{{likeProceed}}" data-blog-id="{{objectId}}"><span class="typcn typcn-heart hvr-pulse-grow" style="color: red; font-size: 30px;"></span> {{likesCount}}</span>
+                                    <span class="reply-count-container"><a href="javascript:setFocusToTextBox();"><span class="typcn typcn-arrow-back hvr-pulse-grow" style="color: black; font-size: 30px;"></span></a> {{replyCount}}</span>&nbsp;&nbsp;
+                                    <span class="like-count-container" style="cursor: pointer" title="{{likeTitle}}" data-proceed="{{likeProceed}}" data-blog-id="{{objectId}}"><span class="typcn typcn-flash hvr-pulse-grow" style="color: red; font-size: 30px;"></span> {{likedBy.length}}</span>
                                     </div>
                                 </div>
                                 
-                                <br><br>
+                                <br>
 
                             </div>
 
-                            {{#if loggedIn}}
-                            <div class="blog-sec">
-                                <br><br><h5>Drop a Reep</h5>
-                                <form class="form-comment" role="form">
-                                    <div class="form-group">
-                                        <textarea placeholder="Mabes reep something ints?" name="content" class="form-control materialize-textarea" rows="3" id="comment-content"></textarea>
-                                        <label for="comment-content">Reep</label><br><br>
-                                    </div>
-                                    <button type="submit" class="btn btn-default">Submit</button>
-                                </form>
-                            </div>
-                            {{/if}}
 
                             {{#if comment}}
-                            <div class="blog-sec">
-                                <br><br><h2>Comments</h2><br>
-                                <ul class="blog-comments list-unstyled">
-                                    {{#each comment}}
-                                    <li class="blog-comment">
-                                        <table>
-                                            <tr>
-                                                <td width="7.5%" style="vertical-align: middle;">
-                                                    <a href="#/{{author.username}}"><img onError="this.src='images/ic_anonymous.png';" src="{{secureUrl author.profilePicture.url}}" class="profilePictureComments hvr-pulse-grow" id="profilePicture"></a>
-                                                </td>
-                                                <td width="auto" style="vertical-align: middle;">
+                                <div class="blog-sec">
+                                    <ul class="blog-comments list-unstyled">
+                                        {{#each comment}}
+                                        <li class="blog-comment">
 
-                                                    <div><a href="#/{{author.username}}">@{{author.username}}</a></div>
-                                                    <div>{{notificationText}}</div>
-                                                    <div style="color: #a3a3a3;">{{time}}</div>
-                                                    {{#if image.url}}
-                                                    <a class="view" href="{{secureUrl image.url}}"><img class="hvr-pulse-grow profilePicture" src="{{secureUrl image.url}}" style="vertical-align: middle; width: 200px; height: 150px; border-radius: 33px;"></a>
-                                                    <br>
-                                                    {{/if}}
+                                            <table>
+                                                <tr>
+                                                    <td width="7.5%" style="vertical-align: middle;">
+                                                        <a href="#/{{attributes.author.attributes.username}}"><img onError="this.src='images/ic_anonymous.png';" src="{{secureUrl attributes.author.attributes.profilePicture._url}}" class="profilePictureComments hvr-pulse-grow" id="profilePicture"></a>
+                                                    </td>
+                                                    <td width="auto" style="vertical-align: middle;">
 
-                                                </td>
-                                            </tr>
-                                        </table>
+                                                        <div><a href="#/{{attributes.author.attributes.username}}">@{{attributes.author.attributes.username}}</a></div>
+                                                        <div>{{attributes.notificationText}}</div>
+                                                        <div style="color: #a3a3a3;">{{attributes.createdAt}}</div>
+                                                        {{#if attributes.image.url}}
+                                                            <a class="view" href="{{secureUrl image.url}}"><img class="hvr-pulse-grow profilePicture" src="{{secureUrl image.url}}" style="vertical-align: middle; width: 200px; height: 150px; border-radius: 33px;"></a>
+                                                            <br>
+                                                        {{/if}}
 
+                                                    </td>
+                                                </tr>
+                                            </table>
 
-                                        <hr>
-                                    </li>
-                                    {{/each}}
-                                </ul>
-                            </div>
+                                           
+                                        </li>
+                                        {{/each}}
+                                    </ul>
+                                </div>
                             {{/if}}
 
-                        <script src="js/view.min.js?auto"><{{!}}/script>
+                            {{#if loggedIn}}
+                                <div class="blog-sec">
+                                    <br><br><h5>Drop a Reep</h5>
+                                    <form class="form-comment" role="form">
+                                        <div class="form-group">
+                                            <textarea length="220" rows="20" maxlength="220" data-length="220" placeholder="Mabes reep something ints?" name="content" class="form-control materialize-textarea" rows="3" id="comment-content"></textarea>
+                                            <label for="comment-content">Reep</label><br><br>
+                                        </div>
+                                        <button type="submit" class="btn btn-default">Submit</button>
+                                    </form>
+                                </div>
+                            {{/if}}
+
+                            <script>
+                            function setFocusToTextBox(){
+                                document.getElementById("comment-content").focus();
+                            }
+                            <{{!}}/script>
+
+                            <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $('textarea#comment-content').characterCounter();
+                                  });
+                            <{{!}}/script>
+
+                            <script src="js/view.min.js?auto"><{{!}}/script>
 
                         </script>
 
@@ -313,7 +325,7 @@
                                         <div class="icon-block">
 
                                             <p><center><div class="hvr-pop fade-in one"><a class="view" href="#/{{username}}"><img class="hvr-pop lazy" src="{{secureUrl image.url}}"></a></div>
-                                                <div><span class="typcn typcn-arrow-back" style="color: #000; font-size: 20px;"></span> {{replyCount}} &nbsp; <span class="typcn typcn-heart" style="color: red; font-size: 20px;"></span> {{likesCount}}
+                                                <div><span class="typcn typcn-arrow-back" style="color: #000; font-size: 20px;"></span> {{replyCount}} &nbsp; <span class="typcn typcn-flash" style="color: red; font-size: 20px;"></span> {{likedBy.length}}
                                                     <div><a href="#/{{username}}">{{name}}</a> &nbsp; <a href="#/{{username}}">@{{username}}</a></div><br>
                                                 </center>
                                             </p>
@@ -336,84 +348,86 @@
                                 <{{!}}/script>
                             </script>
 
-                            <!-- Welcome Template -->
-                            <script id="welcome-tpl" type="text/x-handlebars-template">
-                                <center>
 
-                                    <div style="width: 128px; height: 128px; background-image: url('images/ic_anonymous.png'); background-position: center center; background-repeat: no-repeat; background-size: cover;">
-                                        {{#if blogAdmin}}
-                                        <p><a href="#/changeprofilepic"><img class="hvr-pulse-grow profilePicture" onError="this.src='images/ic_anonymous.png';" src="{{secureUrl profilePicture.url}}" style="vertical-align: middle; width: 128px; height: 128px; border-radius: 133px;" id="profilePicture"></a></p>
-                                        {{else}}
-                                        <p><img onError="this.src='images/ic_anonymous.png';" src="{{secureUrl profilePicture.url}}" style="vertical-align: middle; width: 128px; height: 128px; border-radius: 133px;" id="profilePicture"></p>
-                                        {{/if}}
-                                    </div><br>
 
-                                    <a href="#/{{username}}" style="font-size: 22px;">{{name}}</a>&nbsp;<a href="#/{{username}}" class="author-username" style="font-size: #16px; color: #a3a3a3;">@{{username}}</a><br>
-                                    {{#if blogAdmin}}
-                                    <p><a class="profile-edit" href="#/editprofile"><span class="typcn typcn-edit" style="font-size: 26px;"></span>&nbsp;Edit Profile</a></p>
-                                    {{/if}}
-                                    <span style="font-size: 16px; color: #000;">{{bio}}</span><br>
-                                    <span style="font-size: 16px; color: #000;"><a href="https://{{websiteLink}}">{{websiteLink}}</a></span>
+                    <!-- My Profile View -->
+                    <script id="welcome-tpl" type="text/x-handlebars-template">
+                        <center style="background: lavender; border-radius: 12px; padding: 15px;">
 
-            <!--{{#if blogAdmin}}
-            <a class="btn btn-lg btn-primary btn-block black" style="width: 200px;" href="#/add"><span class="typcn typcn-brush" style="font-size: 20px;"></span>&nbsp;Create</a>
-            {{/if}} -->
-        </center>
+                            <div style="width: 128px; height: 128px; background-image: url('images/ic_anonymous.png'); background-position: center center; background-repeat: no-repeat; background-size: cover;">
+                                {{#if blogAdmin}}
+                                <p><a href="#/changeprofilepic"><img class="hvr-pulse-grow profilePicture" onError="this.src='images/ic_anonymous.png';" src="{{secureUrl profilePicture.url}}" style="vertical-align: middle; width: 128px; height: 128px; border-radius: 133px;" id="profilePicture"></a></p>
+                                {{else}}
+                                <p><img onError="this.src='images/ic_anonymous.png';" src="{{secureUrl profilePicture.url}}" style="vertical-align: middle; width: 128px; height: 128px; border-radius: 133px;" id="profilePicture"></p>
+                                {{/if}}
+                            </div><br>
 
-        <hr>
+                            <a href="#/{{username}}" style="font-size: 22px;">{{name}}</a>&nbsp;<a href="#/{{username}}" class="author-username" style="font-size: #16px; color: #a3a3a3;">@{{username}}</a><br>
+                            {{#if blogAdmin}}
+                            <p><a class="profile-edit" href="#/editprofile"><span class="typcn typcn-edit" style="font-size: 26px;"></span>&nbsp;Edit Profile</a></p>
+                            {{/if}}
+                            <span style="font-size: 16px; color: #000;">{{bio}}</span><br>
+                            <span style="font-size: 16px; color: #000;"><a href="https://{{websiteLink}}">{{websiteLink}}</a></span>
 
-        <div class="row">
-            <div class="blog-post">
+                            <!--{{#if blogAdmin}}
+                            <a class="btn btn-lg btn-primary btn-block black" style="width: 200px;" href="#/add"><span class="typcn typcn-brush" style="font-size: 20px;"></span>&nbsp;Create</a>
+                            {{/if}} -->
 
-                {{#each blog}}
-                <a href="#/yeet/{{objectId}}" style="color: #000;">
-                <div class="col s12 m12 l12 object-hover">
+                        </center>
 
-                    <table>
-                        <tr>
-                            <td width="60px">
-                                <!-- Profile Picture -->
-                                <div class="fade-in one">
-                                    <a href="#/{{author.username}}"><img class="hvr-pulse-grow profilePicture" onError="this.src='images/ic_anonymous.png';" src="{{secureUrl author.profilePicture.url}}" style="vertical-align: middle; width: 60px; height: 60px; border-radius: 133px;" id="profilePicture"></a>
-                                </div>
-                            </td>
-                            <td>
-                                <!-- Content -->
-                                <div>
-                                    <a style="color: #000;" href="#/{{author.username}}">{{author.name}}</a>&nbsp;<a style="color: #a3a3a3;" href="#/{{author.username}}">@{{author.username}}</a>
-                                    <br>
-                                    {{notificationText}}<br>
-                                    {{#if image.url}}
-                                    <a class="view" href="{{secureUrl image.url}}"><img class="hvr-pulse-grow profilePicture" src="{{secureUrl image.url}}" style="vertical-align: middle; width: 200px; height: 150px; border-radius: 33px;"></a>
-                                    <br>
-                                    {{/if}}
+                        <div class="row">
+                            <div class="blog-post">
 
-                                    <span class="reply-count-container"><span class="typcn typcn-arrow-back hvr-pulse-grow" style="color: black; font-size: 30px;"></span> {{replyCount}}</span>&nbsp;&nbsp;
-                                    <span class="like-count-container" style="cursor: pointer" title="{{likeTitle}}" data-proceed="{{likeProceed}}" data-blog-id="{{objectId}}"><span class="typcn typcn-heart hvr-pulse-grow" style="color: red; font-size: 30px;"></span> {{likesCount}}</span>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
+                            {{#each blog}}
+                            <a href="#/yeet/{{objectId}}" style="color: #000;">
+                            <div class="col s12 m12 l12 object-hover">
 
-                </div>
-                </a>
-                {{/each}}
+                                <table>
+                                    <tr>
+                                        <td width="60px">
+                                            
+                                            <div class="fade-in one">
+                                                <a href="#/{{author.username}}"><img class="hvr-pulse-grow profilePicture" onError="this.src='images/ic_anonymous.png';" src="{{secureUrl author.profilePicture.url}}" style="vertical-align: middle; width: 60px; height: 60px; border-radius: 133px;" id="profilePicture"></a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            
+                                            <div>
+                                                <a style="color: #000;" href="#/{{author.username}}">{{author.name}}</a>&nbsp;<a style="color: #a3a3a3;" href="#/{{author.username}}">@{{author.username}}</a>
+                                                <br>
+                                                {{notificationText}}<br>
+                                                {{#if image.url}}
+                                                <a class="view" href="{{secureUrl image.url}}"><img class="hvr-pulse-grow profilePicture" src="{{secureUrl image.url}}" style="vertical-align: middle; width: 200px; height: 150px; border-radius: 33px;"></a>
+                                                <br>
+                                                {{/if}}
 
-            </div>
+                                                <span class="reply-count-container"><span class="typcn typcn-arrow-back hvr-pulse-grow" style="color: black; font-size: 30px;"></span> {{replyCount}}</span>&nbsp;&nbsp;
+                                                <span class="like-count-container" style="cursor: pointer" title="{{likeTitle}}" data-proceed="{{likeProceed}}" data-blog-id="{{objectId}}"><span class="typcn typcn-flash hvr-pulse-grow" style="color: red; font-size: 30px;"></span> {{likedBy.length}}</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
 
-            <center >
-                <img src="images/rolling.gif" class="loading-image">
-            </center>
+                            </div>
+                            </a>
+                            {{/each}}
 
-            <script>
-                $("div.lazy").lazyload({
-                    effect : "fadeIn"
-                });
-                <{{!}}/script>
+                        </div>
 
-            <script src="js/view.min.js?auto"><{{!}}/script>
+                        <center >
+                            <img src="images/rolling.gif" class="loading-image">
+                        </center>
 
-            </script>
+                        <script>
+                            $("div.lazy").lazyload({
+                                effect : "fadeIn"
+                            });
+                        <{{!}}/script>
+
+                        <script src="js/view.min.js?auto"><{{!}}/script>
+                    </script>
+
+
 
             <!-- Change Profile Picture Template -->
             <script id="change-profile-pic-tpl" type="text/x-handlebars-template">
@@ -520,7 +534,7 @@
                         
                         
                         <div class="form-group">
-                            <textarea name="content" id="content" autofocus="" placeholder="Yeet something ints you monk!" class="form-control materialize-textarea" length="140" rows="20">{{content}}</textarea>
+                            <textarea name="content" id="content" data-length="220" autofocus="" placeholder="Yeet something ints you monk!" class="form-control materialize-textarea" length="220" rows="20" maxlength="220">{{content}}</textarea>
                             <label for="content">Yeet</label>
                         </div>
                         <br/><br/>
@@ -528,6 +542,13 @@
                         <br/><br/>
                         <div id="lastYeet"></div>
                     </form>
+
+                    <script type="text/javascript">
+                    $(document).ready(function() {
+                        $('textarea#content').characterCounter();
+                      });
+                    <{{!}}/script>
+
                 </script>
 
 

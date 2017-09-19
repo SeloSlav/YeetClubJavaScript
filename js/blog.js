@@ -1,4 +1,5 @@
 var $blogs = [];
+var $comments = [];
 var global_title = [];
 var global_description = [];
 var global_size_options = [];
@@ -97,39 +98,7 @@ $(function() {
     // User
     BlogApp.Models.User = Parse.Object.extend('User');
 
-    // Yeet - Welcome View
-    BlogApp.Models.MarketFeed = Parse.Object.extend('Yeet', {
-
-        update: function(form) {
-
-            if (!this.get('ACL')) {
-                var blogACL = new Parse.ACL(Parse.User.current());
-                blogACL.setPublicReadAccess(true);
-                this.setACL(blogACL);
-            }
-
-            this.set({
-                'currentGroup': this.get('currentGroup') || Parse.User.current().get('currentGroup'),
-                'content': form.content,
-                'author': this.get('author') || Parse.User.current(),
-                'authorName': this.get('authorName') || Parse.User.current().get('username'),
-                'time': this.get('time') || new Date().toDateString()
-            }).save(null, {
-                success: function(blog) {
-                    Parse.history.navigate('#/admin', {
-                        trigger: true
-                    });
-                    window.location.reload();
-                },
-                error: function(blog, error) {
-                    console.log(error);
-                }
-            });
-        }
-
-    });
-
-    // Inventory
+    // Group
     BlogApp.Models.Group = Parse.Object.extend('Group');
 
     // Yeet - List Posts View
@@ -170,7 +139,7 @@ $(function() {
             var marketFeedQuery = new Parse.Query(BlogApp.Models.Blog);
             marketFeedQuery.equalTo('senderParseObjectId', BlogApp.blog);
             marketFeedQuery.find({
-                success: function(marketFeeds) {
+                success: function(comments) {
                     thisObj.set({
                         author: Parse.User.current(),
                         replyAuthor: Parse.User.current(),
@@ -181,8 +150,21 @@ $(function() {
                         repliedToBy: []
                     }).save(null, {
                         success: function(comment) {
-                            // TODO: Increment top-level Yeet reply count
-                            
+
+                            var topLevelYeetQuery = new Parse.Query(BlogApp.Models.Blog);
+                            topLevelYeetQuery.equalTo('objectId', BlogApp.blog.id);
+                            topLevelYeetQuery.find({
+                                success: function(yeets) {
+                                    for (i in yeets) {
+                                        yeets[i].set('lastReplyUpdatedAt', new Date());
+                                        yeets[i].increment('repliedToBy', yeets[i].repliedToBy.push(Parse.User.current().id));
+                                        yeets[i].increment('replyCount', 1);
+                                        yeets[i].save();
+                                    }
+
+                                }
+                            });
+
                             window.location.reload();
                         },
                         error: function(comment, error) {
@@ -198,11 +180,6 @@ $(function() {
 
 
     // ########## COLLECTIONS ##########
-
-    BlogApp.Collections.MarketFeeds = Parse.Collection.extend({
-        model: BlogApp.Models.MarketFeed,
-        query: (new Parse.Query(BlogApp.Models.MarketFeed)).descending('lastReplyUpdatedAt').limit(50)
-    });
 
     var currentUser = Parse.User.current();
     if (!currentUser) {
@@ -222,20 +199,15 @@ $(function() {
         query: (new Parse.Query(BlogApp.Models.Blog)).equalTo("author", user).descending('lastReplyUpdatedAt').limit(300).include('author')
     });
 
-    BlogApp.Collections.Comments = Parse.Collection.extend({
-        model: BlogApp.Models.Comment,
-        query: (new Parse.Query(BlogApp.Models.Comment)).descending('lastReplyUpdatedAt')
-    });
-
-
 
     // ########## VIEWS ##########
-    // List Posts View
+
+
+    // Yeets List View
     BlogApp.Views.Blogs = Parse.View.extend({
         template: Handlebars.compile($('#blogs-tpl').html()),
         className: 'blog-post',
 
-        // THE PROBLEM IS HERE
         render: function() {
             Parse.User.current().fetch();
 
@@ -246,13 +218,14 @@ $(function() {
             collection = {
                 blog: this.options.blogs
             };
+
             // console.log(this.options.blogs);
             this.$el.html(this.template(collection));
         },
     });
 
 
-    // Welcome View
+    // Profile View
     BlogApp.Views.Welcome = Parse.View.extend({
         template: Handlebars.compile($('#welcome-tpl').html()),
         className: 'blog-sec',
@@ -310,10 +283,10 @@ $(function() {
     });
 
 
-    // Single Post View
+    // Single Yeet View
     BlogApp.Views.Blog = Parse.View.extend({
         template: Handlebars.compile($('#blog-tpl').html()),
-        className: 'blog-post',
+        className: 'blog-comment',
         events: {
             'submit .form-comment': 'submit',
             'click .like-count-container': 'like',
@@ -365,8 +338,8 @@ $(function() {
 
         render: function() {
             var self = this,
-                attributes = this.model,
-                query = new Parse.Query(BlogApp.Models.Blog);
+            attributes = this.model,
+            query = new Parse.Query(BlogApp.Models.Blog);
             query.include("author");
 
             attributes.loggedIn = Parse.User.current() != null;
@@ -374,9 +347,22 @@ $(function() {
                 attributes.currentUser = Parse.User.current().toJSON();
             }
 
-            this.$el.html(this.template(attributes));
+            // console.log(attributes);
+
+            var Post = Parse.Object.extend("Yeet");
+            var commentsQuery = new Parse.Query(Post);
+            commentsQuery.include("author");
+            commentsQuery.equalTo("senderParseObjectId", attributes.objectId);
+            commentsQuery.find({
+                success: function(comments) {
+                    // console.log(comments);
+                    attributes.comment = comments;
+                    self.$el.html(self.template(attributes))
+                }
+            });
 
         }
+
     });
 
 
@@ -538,7 +524,7 @@ $(function() {
     });
 
 
-    // Change profile picture view
+    // Change Profile Picture View
     BlogApp.Views.ChangeProfilePicture = Parse.View.extend({
 
         template: Handlebars.compile($('#change-profile-pic-tpl').html()),
@@ -638,7 +624,7 @@ $(function() {
 
     });
 
-    // Write View
+    // Send Yeet View
     BlogApp.Views.WriteBlog = Parse.View.extend({
         template: Handlebars.compile($('#write-tpl').html()),
         className: 'blog-sec',
@@ -651,7 +637,7 @@ $(function() {
             e.preventDefault();
             var data = $(e.target).serializeArray();
 
-            var marketDesign = new BlogApp.Models.Blog();
+            var newYeet = new BlogApp.Models.Blog();
 
             /*var imageFile = new Parse.File('image.png', {base64: document.getElementsByTagName('canvas')[0].toDataURL('image/png')});
             var compressedFile = new Parse.File('compressed_image.jpeg', {base64: document.getElementsByTagName('canvas')[0].toDataURL('image/jpeg', 0.1)});
@@ -662,22 +648,22 @@ $(function() {
             acl.setPublicWriteAccess(true);
 
             // Set values for Yeet object
-            marketDesign.setACL(acl);
-            marketDesign.set('author', Parse.User.current());
-            marketDesign.set('groupId', Parse.User.current().get('currentGroup'));
-            marketDesign.set('isRant', false);
+            newYeet.setACL(acl);
+            newYeet.set('author', Parse.User.current());
+            newYeet.set('groupId', Parse.User.current().get('currentGroup'));
+            newYeet.set('isRant', false);
             var likedBy = [];
-            marketDesign.set('likedBy', likedBy);
+            newYeet.set('likedBy', likedBy);
             var date = new Date();
-            marketDesign.set('lastReplyUpdatedAt', date);
+            newYeet.set('lastReplyUpdatedAt', date);
 
             var yeetContent = document.getElementById('content').value;
 
             // If the Yeet is not empty then save to Parse
             if (yeetContent.length >= 1 && yeetContent.length <= 220) {
-                marketDesign.set('notificationText', yeetContent);
+                newYeet.set('notificationText', yeetContent);
 
-                marketDesign.save().then(function(savedComment) {
+                newYeet.save().then(function(savedComment) {
                     // Succ message
                     Materialize.toast('Succ! Yeet Sent.', 4000, 'green');
 
@@ -707,13 +693,13 @@ $(function() {
                 Materialize.toast('Watch it, bub! Yeets must be less than 220 characters.', 4000, 'red');
             }
 
-            /*marketDesign.set('thumbnail', thumbnailFile);
-            marketDesign.set('compressedBackImage', compressedFile);
-            marketDesign.set('compressedImage', compressedFile);
-            marketDesign.set('backImage', imageFile);
-            marketDesign.set('image', imageFile);
-            marketDesign.set('designImage', imageFile);
-            marketDesign.set('uuid', $generateUUID());*/
+            /*newYeet.set('thumbnail', thumbnailFile);
+            newYeet.set('compressedBackImage', compressedFile);
+            newYeet.set('compressedImage', compressedFile);
+            newYeet.set('backImage', imageFile);
+            newYeet.set('image', imageFile);
+            newYeet.set('designImage', imageFile);
+            newYeet.set('uuid', $generateUUID());*/
 
             this.model = this.model || new BlogApp.Models.Blog();
         },
@@ -764,8 +750,6 @@ $(function() {
     BlogApp.Router = Parse.Router.extend({
 
         initialize: function(options) {
-            BlogApp.marketFeed = new BlogApp.Models.MarketFeed();
-            BlogApp.marketFeeds = new BlogApp.Collections.MarketFeeds();
             BlogApp.blog = new BlogApp.Models.Blog();
 
             if (!currentUser) {
@@ -1047,15 +1031,22 @@ $(function() {
     // ########## Render Navigation Bar Everywhere ##########
     BlogApp.fn.getSidebar = function() {
         var currentUser = new Parse.User.current();
-        BlogApp.blogs.fetch().then(function(blogs) {
+        if (!currentUser) {
             BlogApp.fn.renderView({
                 View: BlogApp.Views.Navigation,
-                data: {
-                    model: currentUser
-                },
                 $container: BlogApp.$sidebar
             });
-        });
+        } else {
+            BlogApp.blogs.fetch().then(function(blogs) {
+                BlogApp.fn.renderView({
+                    View: BlogApp.Views.Navigation,
+                    data: {
+                        model: currentUser
+                    },
+                    $container: BlogApp.$sidebar
+                });
+            });
+        }
     };
 
 
