@@ -51,6 +51,7 @@
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 
+    <!-- Linkify -->
     <script src="js/linkify.js"></script>
     <script src="js/linkify-jquery.js"></script>
 
@@ -65,11 +66,14 @@
         ga('send', 'pageview');
     </script> -->
 
+    <!-- Mobile Optimized -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
     <!-- Style -->
     <link href="css/materialize.css" rel="stylesheet"/>
     <link href="css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
 
-    <!-- Compare Generator -->
+    <!-- Handlebars.jsCompare Generator -->
     <script>
         Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
             switch (operator) {
@@ -566,7 +570,7 @@
 
                                             {{#ifEquals notificationType "typeYoop"}}
                                             <td style="vertical-align: middle;">
-                                                <span class="typcn typcn-thumbs-ok hvr-pulse-grow" style="color: lavender; font-size: 30px;">
+                                                <span class="typcn typcn-thumbs-ok hvr-pulse-grow" style="color: blueviolet; font-size: 30px;">
                                             </td>
                                             {{/ifEquals}}
 
@@ -604,7 +608,7 @@
                                                     <span style="color: #a3a3a3;">{{notificationBody}}</span><br>
                                                     {{/ifEquals}}
                                                     
-                                                    <a href="#/group/{{group.objectId}}"><span style="{{#ifEquals group.objectId ../user.attributes.currentGroup.id}}color: deeppink;{{else}}color: blueviolet;{{/ifEquals}}">{{group.name}}</span></a>{{#ifEquals notificationType "typeComment"}}<br>{{/ifEquals}}
+                                                    <a href="#/group/{{group.objectId}}" class="btn tooltipped" data-position="bottom" data-delay="50" data-tooltip="I am a tooltip"><span style="{{#ifEquals group.objectId ../user.attributes.currentGroup.id}}color: deeppink;{{else}}color: lightsteelblue;{{/ifEquals}}">{{group.name}}</span></a>{{#ifEquals notificationType "typeComment"}}<br>{{/ifEquals}}
 
                                                     {{#if image.url}}
                                                     <a class="view" href="{{secureUrl image.url}}"><img class="hvr-pop" src="{{secureUrl image.url}}" style="vertical-align: middle; border-radius: 33px;"></a>
@@ -629,6 +633,12 @@
                         </div>
 
                     </div>
+
+                    <script>
+                        $(document).ready(function(){
+                            $('.tooltipped').tooltip({delay: 50});
+                          });
+                    <{{!}}/script>
 
                     <script>
                         $(document).ready(function() {

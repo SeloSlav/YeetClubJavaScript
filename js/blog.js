@@ -371,13 +371,45 @@ $(function() {
                     success: function(bl) {
                         $(e.currentTarget).attr('title', 'Yeet liked!');
                         /*$(e.currentTarget).find('span').text(bl.get('likesCount'));*/
-                        window.location.reload();
+                        // window.location.reload();
                         Materialize.toast('Succ! Yeet Liked.', 4000, 'green');
                     },
                     error: function(bl, e1) {
                         console.log(e1);
                     }
                 });
+
+                var self = this,
+                attributes = this.model,
+                query = new Parse.Query(BlogApp.Models.Blog);
+                query.include("author");
+
+                console.log(attributes);
+
+                // Creation Like Notification object
+                var Notification = Parse.Object.extend("Notification");
+                var newNotification = new Notification();
+
+                newNotification.set("author", Parse.User.current());
+                newNotification.set("notificationBody", attributes.notificationText);
+                newNotification.set("senderName", Parse.User.current().get('username'));
+                newNotification.set("recipientId", attributes.author.objectId);
+                newNotification.set("commentObjectId", bl.id);
+                newNotification.set("notificationText", " liked your yeet!");
+                newNotification.set("notificationType", "typeLike");
+                newNotification.set("read", false);
+                newNotification.set("groupId", Parse.User.current().get('currentGroup'));
+
+                newNotification.save(null, {
+                  success: function(newNotification) {
+                    console.log('New object created with objectId: ' + newNotification.id);
+                  },
+                  error: function(newNotification, error) {
+                    // error is a Parse.Error with an error code and message.
+                    console.log('Failed to create new object, with error code: ' + error.message);
+                  }
+                });
+
             }
         },
 
