@@ -61,8 +61,6 @@ $(function() {
         return url;
     });
 
-
-
     // ########## MAIN APPLICATION ##########
     var BlogApp = new(Parse.View.extend({
 
@@ -189,7 +187,7 @@ $(function() {
         // console.log(currentGroup.id);
         BlogApp.Collections.Blogs = Parse.Collection.extend({
             model: BlogApp.Models.Blog,
-            query: (new Parse.Query(BlogApp.Models.Blog)).equalTo('groupId', currentGroup).include('author').descending('lastReplyUpdatedAt').limit(50)
+            query: (new Parse.Query(BlogApp.Models.Blog)).equalTo('groupId', currentGroup).include('author').descending('lastReplyUpdatedAt').limit(300)
         });
     }
 
@@ -207,6 +205,29 @@ $(function() {
     BlogApp.Views.Blogs = Parse.View.extend({
         template: Handlebars.compile($('#blogs-tpl').html()),
         className: 'blog-post',
+        events: {
+            'click .delete-container': 'delete',
+        },
+
+        delete: function(e) {
+            if (Parse.User.current()) {
+                var bl = new BlogApp.Models.Blog();
+
+                bl.id = $(e.currentTarget).data('blog-id');
+
+                Materialize.toast('Succ! Yeet Deleted.', 4000, 'green');
+                $('.' + bl.id).hide();
+
+                bl.destroy({}, {
+                    success: function(bl) {
+                        // Materialize.toast('Succ! Yeet Deleted.', 4000, 'green');
+                    },
+                    error: function(bl, e1) {
+                        console.log(e1);
+                    }
+                });
+            }
+        },
 
         render: function() {
             Parse.User.current().fetch();
@@ -214,8 +235,10 @@ $(function() {
             var collection = {
                 blog: []
             };
+
             // console.log(this)
             collection = {
+                user: currentUser,
                 blog: this.options.blogs
             };
 
@@ -229,14 +252,38 @@ $(function() {
     BlogApp.Views.Welcome = Parse.View.extend({
         template: Handlebars.compile($('#welcome-tpl').html()),
         className: 'blog-sec',
-
         events: {
-            'scrolledToBottom a.author-username': 'loadMore'
+            'click .delete-container': 'delete',
         },
+
+        delete: function(e) {
+            if (Parse.User.current()) {
+                var bl = new BlogApp.Models.Blog();
+
+                bl.id = $(e.currentTarget).data('blog-id');
+
+                Materialize.toast('Succ! Yeet Deleted.', 4000, 'green');
+                $('.' + bl.id).hide();
+
+                bl.destroy({}, {
+                    success: function(bl) {
+                        // Materialize.toast('Succ! Yeet Deleted.', 4000, 'green');
+                    },
+                    error: function(bl, e1) {
+                        console.log(e1);
+                    }
+                });
+            }
+        },
+
+        /*events: {
+            'scrolledToBottom a.author-username': 'loadMore'
+        },*/
 
         render: function() {
             var self = this,
                 attributes = this.options.user.toJSON();
+                // console.log(attributes);
 
             if (Parse.User.current() && Parse.User.current().id === attributes.objectId) {
                 attributes.blogAdmin = true;
@@ -246,15 +293,13 @@ $(function() {
             self.$el.html(self.template(attributes));
         },
 
-        loadMore: function(e) {
+        /*loadMore: function(e) {
             var username = $('a.author-username').text();
             (new Parse.Query(BlogApp.Models.User)).equalTo('username', username).find().then(function(users) {
-                var q1 = new Parse.Query(BlogApp.Models.Blog),
-                    q2 = new Parse.Query(BlogApp.Models.Blog);
+                var q1 = new Parse.Query(BlogApp.Models.Blog);
                 q1.equalTo("author", users[0]);
-                q2.equalTo("downloaders", users[0]);
 
-                var designsQuery = new Parse.Query.or(q1, q2);
+                var designsQuery = new Parse.Query(q1);
                 designsQuery.skip($blogs.length).descending('lastReplyUpdatedAt').include('author').limit(50);
 
                 designsQuery.find().then(function(userDesigns) {
@@ -272,14 +317,14 @@ $(function() {
                         }
                     });
 
-                    if (userDesigns.length < 50) {
+                    if (userDesigns.length <= 50) {
                         $('.loading-image').addClass('hide');
                     } else {
                         $('.loading-image').removeClass('hide');
                     }
                 });
             });
-        }
+        }*/
     });
 
 
@@ -372,6 +417,7 @@ $(function() {
         template: Handlebars.compile(Parse.User.current() ? $('#menu-logged-in-tpl').html() : $('#menu-logged-out-tpl').html()),
         render: function() {
             var attributes = Parse.User.current() ? Parse.User.current().toJSON() : {};
+
             this.$el.html(this.template(attributes));
         }
     });
@@ -487,6 +533,78 @@ $(function() {
             this.$el.html(this.template());
         }
 
+    });
+
+    // My Clubs View
+    BlogApp.Views.MyClubs = Parse.View.extend({
+        template: Handlebars.compile($('#myclubs-tpl').html()),
+        className: 'blog-sec',
+
+        render: function() {
+            this.$el.html(this.template());
+        }
+    });
+
+    // Notifications View
+    BlogApp.Views.Notifications = Parse.View.extend({
+        template: Handlebars.compile($('#notifications-tpl').html()),
+        className: 'blog-post',
+        events: {
+            'mouseover .notification-container': 'setReadState',
+        },
+
+        setReadState: function(e) {
+            // console.log("hovered!");
+            var bl = new BlogApp.Models.Blog();
+            bl.id = $(e.currentTarget).data('blog-id');
+            // console.log(bl.id);
+            $('.' + bl.id).css("backgroundColor", "white");
+
+                var notificationsQuery = new Parse.Query("Notification").equalTo('objectId', bl.id);
+                notificationsQuery.find({
+                    success: function(notifications) {
+
+                        // console.log("Set read state to true!");
+
+                        for (var i in notifications) {
+                            var not = notifications[i];
+                            not.set("read", true);
+                            not.save(null, {
+                                success: function(savedUser) {
+                                    // console.log("Notification saved!");
+                                },
+                                error: function(user, error) {
+                                    console.log(JSON.stringify(error));
+                                }
+                            });
+                        }
+
+                    },
+                    error: function(notifications, e) {
+                        console.log(JSON.stringify(e));
+                    }
+                });            
+
+        },
+
+        render: function() {
+            Parse.User.current().fetch();
+
+            var collection = {
+                blog: []
+            };
+
+            console.log(currentUser);
+
+            // console.log(this)
+            collection = {
+                user: currentUser,
+                blog: this.options.blogs
+            };
+
+            // console.log(this.options.blogs);
+            this.$el.html(this.template(collection));
+        },
     });
 
     // Reset Password View
@@ -776,6 +894,8 @@ $(function() {
             'admin': 'admin',
             'login': 'login',
             'store': 'store',
+            'myclubs': 'myclubs',
+            'notifications': 'notifications',
             'reset': 'reset',
             'logout': 'logout',
             'add': 'add',
@@ -796,8 +916,9 @@ $(function() {
                 });
                 console.log("There is no logged in user.");
             } else {
+                // console.log("Current User: " + currentUser);
                 var currentGroup = currentUser.get('currentGroup');
-                var designsQuery = new Parse.Query(BlogApp.Models.Blog).equalTo('groupId', currentGroup).include('author').descending('lastReplyUpdatedAt').limit(50);
+                var designsQuery = new Parse.Query(BlogApp.Models.Blog).equalTo('groupId', currentGroup).include('author').include('groupId').descending('lastReplyUpdatedAt').limit(300);
                 designsQuery.find({
                     success: function(blogs) {
 
@@ -806,6 +927,7 @@ $(function() {
                             des.author = blogs[i].get('author').toJSON();
                             $blogs.push(des);
                         }
+
                         // console.log(blogs);
 
                         BlogApp.fn.renderView({
@@ -956,6 +1078,56 @@ $(function() {
             });
         },
 
+        myclubs: function() {
+            BlogApp.fn.setPageType('myclubs');
+            BlogApp.fn.renderView({
+                View: BlogApp.Views.MyClubs
+            });
+        },
+
+        notifications: function() {
+            BlogApp.fn.setPageType('notifications');
+
+            $blogs = [];
+
+            if (!currentUser) {
+                Parse.history.navigate('#/register', {
+                    trigger: true
+                });
+                console.log("There is no logged in user.");
+            } else {
+                // console.log("Current User: " + currentUser);
+                var currentGroup = currentUser.get('currentGroup');
+                var currentUserId = currentUser.id;
+                var designsQuery = new Parse.Query("Notification").equalTo('recipientId', currentUserId).include('author').include('groupId').descending('createdAt').limit(300);
+                designsQuery.find({
+                    success: function(blogs) {
+
+                        for (var i in blogs) {
+                            var des = blogs[i].toJSON();
+                            des.author = blogs[i].get('author').toJSON();
+                            $blogs.push(des);
+                            des.group = blogs[i].get('groupId').toJSON();
+                            $blogs.push(des);
+                        }
+
+                        // console.log(blogs);
+
+                        BlogApp.fn.renderView({
+                            View: BlogApp.Views.Notifications,
+                            data: {
+                                blogs: $blogs
+                            }
+
+                        });
+                    },
+                    error: function(blogs, e) {
+                        console.log(JSON.stringify(e));
+                    }
+                });
+            }
+        },
+
         reset: function() {
             BlogApp.fn.setPageType('reset');
             BlogApp.fn.renderView({
@@ -1031,21 +1203,21 @@ $(function() {
     // ########## Render Navigation Bar Everywhere ##########
     BlogApp.fn.getSidebar = function() {
         var currentUser = new Parse.User.current();
+
         if (!currentUser) {
             BlogApp.fn.renderView({
                 View: BlogApp.Views.Navigation,
                 $container: BlogApp.$sidebar
             });
         } else {
-            BlogApp.blogs.fetch().then(function(blogs) {
-                BlogApp.fn.renderView({
-                    View: BlogApp.Views.Navigation,
-                    data: {
-                        model: currentUser
-                    },
-                    $container: BlogApp.$sidebar
-                });
-            });
+            // Render view with current user
+            BlogApp.fn.renderView({
+                View: BlogApp.Views.Navigation,
+                data: {
+                    model: currentUser
+                },
+                $container: BlogApp.$sidebar
+            });      
         }
     };
 
