@@ -236,7 +236,7 @@
                                         <tr>
                                             <td style="width: 128px;">
                                                 <a href="#/{{author.username}}"><img class="hvr-pulse-grow profilePicture" style="width: 128px !important; height: 128px !important;" onError="this.src='images/ic_anonymous.png';" src="{{secureUrl author.profilePicture.url}}" id="profilePicture"></div></a><br>
-                                                {{#if author.verified}}<center><a class="tooltipped" data-tooltip="{{author.name}} is a validated mag" data-position="right" data-delay="50"><img src="images/ic_verified.png"></a></center>{{/if}}
+                                                {{#if author.verified}}<center><a class="tooltipped" data-tooltip="{{author.name}} is a validated mag" data-position="bottom" data-delay="50"><img src="images/ic_verified.png"></a></center>{{/if}}
                                             </td>
                                             <td style="vertical-align: top;">
                                                 <a href="#/{{author.username}}">{{author.name}}</a>&nbsp;<a style="color: #a3a3a3 !important;" href="#/{{author.username}}">@{{author.username}}</a><br>
@@ -424,7 +424,7 @@
                                 {{/if}}<br>
                                 <p>
                             </div>
-                            {{#if verified}}<center><a class="tooltipped" data-tooltip="{{name}} is a validated mag" data-position="bottom" data-delay="50"><img src="images/ic_verified.png"></a></center>{{/if}}
+                            {{#if verified}}<center><a class="tooltipped" data-tooltip="{{name}} is a validated mag" data-position="right" data-delay="50"><img src="images/ic_verified.png"></a></center>{{/if}}
 
                             <a href="#/{{username}}" style="font-size: 22px;">{{name}}</a>&nbsp;<a href="#/{{username}}" class="author-username" style="font-size: #16px; color: #a3a3a3;">@{{username}}</a><br>
                             <span style="font-size: 16px; color: #000;">{{bio}}</span><br>
@@ -1038,15 +1038,15 @@
     <div class="fade-in one">
         <div class="section no-pad-bot lazy" id="index-banner" style="background: url('images/background-header.png'),linear-gradient(to left,#7b4397,#dc2430);">
             <div class="container" style="height: 50px;">
-            <h3 class="center" id="top" style="color: #fff !important;">{{group.objectId}}</h3>
+                <h4 class="center" id="top" style="color: #fff !important;">{{group.objectId}}</h4>
             </div>
         </div>
     </div>
 
-    <script>
-        $("div.lazy").lazyload({
-            effect : "fadeIn"
-        });
+        <script>
+            $("div.lazy").lazyload({
+                effect : "fadeIn"
+            });
         <{{!}}/script>
 
         <script>

@@ -527,6 +527,27 @@ $(function() {
         render: function() {
             var attributes = Parse.User.current() ? Parse.User.current().toJSON() : {};
 
+            var currentGroupId = Parse.User.current().get('currentGroup').toJSON().objectId;
+            console.log("currentGroupId: " + currentGroupId);
+            
+            var Group = Parse.Object.extend("Group");
+            var currentGroupQuery = new Parse.Query(Group);
+            currentGroupQuery.equalTo("objectId", currentGroupId);
+            currentGroupQuery.find({
+                success: function(results) {
+                    for (var i = 0; i < results.length; i++) {
+                        var groupObject = results[i];
+                        console.log("groupObject: " + groupObject.id);
+                        console.log("groupObject: " + groupObject.get('name'));
+                        attributes.group = groupObject;
+                    }
+                },
+                error: function(error) {
+                    alert("Error: " + error.code + " " + error.message);
+                }
+            });
+
+            // console.log(currentGroup);
             this.$el.html(this.template(attributes));
         }
     });
