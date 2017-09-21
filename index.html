@@ -44,7 +44,7 @@
     <link rel="stylesheet" href="css/font-awesome-x.min.css">
 
     <!-- JQuery -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
     <script src="js/jquery.lazyload.js"></script>
 
@@ -144,10 +144,10 @@
                                 <!-- Profile Picture -->
                                 <div class="fade-in one">
                                     <a href="#/{{author.username}}"><img class="hvr-pulse-grow profilePicture" onError="this.src='images/ic_anonymous.png';" src="{{secureUrl author.profilePicture.url}}" style="vertical-align: middle; width: 60px; height: 60px; border-radius: 133px;" id="profilePicture"></a><br>
-                                    {{#if author.verified}}<center><img src="images/ic_verified.png" title="{{author.name}} is a validated mag"></center>{{/if}}
+                                    {{#if author.verified}}<center><a class="tooltipped" data-tooltip="{{author.name}} is a validated mag" data-position="bottom" data-delay="50"><img src="images/ic_verified.png"></a></center>{{/if}}
                                 </div>
                             </td>
-                            <td style="width: 100%;">
+                            <td style="width: 100%; vertical-align: top;">
                                 <!-- Content -->
                                 <div>
 
@@ -166,9 +166,18 @@
                                 </div>
                             </td>
                             <td style="vertical-align: top;">
-                            {{#ifEquals author.username ../user.attributes.username}}
-                                <a href="#" onClick="return false;"><span class="delete-container" style="cursor: pointer" data-blog-id="{{objectId}}"><span class="typcn typcn-trash hvr-pulse-grow" style="color: gray; font-size: 30px;"></span></span></a>
-                            {{/ifEquals}}
+                                <a href="#" onClick="return false;" class="tooltipped" data-tooltip="Options" data-position="right" data-delay="50"><span class="options-container" style="cursor: pointer" data-blog-id="{{objectId}}"><span class="typcn typcn-arrow-sorted-down hvr-pulse-grow" style="color: lightgray; font-size: 30px;"></span></span></a>
+                                <div class="options-div-hidden options-div-{{objectId}}" style="background: #efefef; border-radius: 6px; padding: 3px;">
+                                    {{#ifEquals author.username ../user.attributes.username}}
+                                    <a href="#" onClick="return false;" class="tooltipped" data-tooltip="Delete this Yeet?" data-position="right" data-delay="50"><span class="delete-container" style="cursor: pointer" data-blog-id="{{objectId}}"><span class="typcn typcn-delete hvr-pulse-grow" style="color: gray; font-size: 30px;"></span></span></a>
+                                    <a href="#" onClick="return false;" class="tooltipped" data-tooltip="Copy link to Yeet" data-position="right" data-delay="50"><span class="copy-container" style="cursor: pointer" data-blog-id="{{objectId}}"><span class="typcn typcn-clipboard hvr-pulse-grow" style="color: gray; font-size: 30px;"></span></span></a>
+                                    {{else}}
+                                    <a href="#" onClick="return false;" class="tooltipped" data-tooltip="Copy link to Yeet" data-position="right" data-delay="50"><span class="copy-container" style="cursor: pointer" data-blog-id="{{objectId}}"><span class="typcn typcn-clipboard hvr-pulse-grow" style="color: gray; font-size: 30px;"></span></span></a>
+                                    <a href="#" onClick="return false;" class="tooltipped" data-tooltip="Report Yeet" data-position="right" data-delay="50"><span class="report-container" style="cursor: pointer" data-blog-id="{{objectId}}"><span class="typcn typcn-volume-up hvr-pulse-grow" style="color: gray; font-size: 30px;"></span></span></a>
+                                    <!-- <a href="#" onClick="return false;" class="tooltipped" data-tooltip="Mute {{author.name}}" data-position="right" data-delay="50"><span class="mute-container" style="cursor: pointer" data-blog-id="{{objectId}}"><span class="typcn typcn-volume-mute hvr-pulse-grow" style="color: gray; font-size: 30px;"></span></span></a>
+                                    <a href="#" onClick="return false;" class="tooltipped" data-tooltip="Block {{author.name}}" data-position="right" data-delay="50"><span class="block-container" style="cursor: pointer" data-blog-id="{{objectId}}"><span class="typcn typcn-user-delete-outline hvr-pulse-grow" style="color: gray; font-size: 30px;"></span></span></a> -->
+                                    {{/ifEquals}}
+                                </div>
                             </td>
                         </tr>
                     </table>
@@ -180,9 +189,21 @@
         </div>
     </div>
 
-            <center class="loading-image">
+                    <!-- <center class="loading-image">
                         <img class="hide loading-image" src="images/rolling.gif">
-                    </center>
+                    </center> -->
+
+                    <script>
+                        $(document).ready(function(){
+                            $('.options-div-hidden').hide();
+                          });
+                    <{{!}}/script>
+
+                    <script>
+                        $(document).ready(function(){
+                            $('.tooltipped').tooltip({delay: 50});
+                          });
+                    <{{!}}/script>
 
                     <script>
                         $(document).ready(function() {
@@ -215,7 +236,7 @@
                                         <tr>
                                             <td style="width: 128px;">
                                                 <a href="#/{{author.username}}"><img class="hvr-pulse-grow profilePicture" style="width: 128px !important; height: 128px !important;" onError="this.src='images/ic_anonymous.png';" src="{{secureUrl author.profilePicture.url}}" id="profilePicture"></div></a><br>
-                                                {{#if author.verified}}<center><img src="images/ic_verified.png" title="{{author.name}} is a validated mag"></center>{{/if}}
+                                                {{#if author.verified}}<center><a class="tooltipped" data-tooltip="{{author.name}} is a validated mag" data-position="right" data-delay="50"><img src="images/ic_verified.png"></a></center>{{/if}}
                                             </td>
                                             <td style="vertical-align: top;">
                                                 <a href="#/{{author.username}}">{{author.name}}</a>&nbsp;<a style="color: #a3a3a3 !important;" href="#/{{author.username}}">@{{author.username}}</a><br>
@@ -233,7 +254,7 @@
                                     <hr style="margin-top: 2vh; margin-bottom: 2vh; border: 0; height: 0; border-top: 1px solid #fff;">
 
                                     <span class="reply-count-container"><a href="javascript:setFocusToTextBox();"><span class="typcn typcn-arrow-back hvr-pulse-grow" style="color: black; font-size: 30px;"></span></a> {{replyCount}}</span>&nbsp;&nbsp;
-                                    <span class="like-count-container" style="cursor: pointer" title="{{likeTitle}}" data-proceed="{{likeProceed}}" data-blog-id="{{objectId}}"><span class="typcn typcn-flash hvr-pulse-grow" style="color: red; font-size: 30px;"></span> {{likedBy.length}}</span>
+                                    <span class="like-count-container" style="cursor: pointer" title="{{likeTitle}}" data-proceed="{{likeProceed}}" data-blog-id="{{objectId}}"><span class="typcn typcn-flash hvr-pulse-grow" style="color: red; font-size: 30px;"></span> <span class="likedByLength">{{likedBy.length}}</span></span>
                                     </div>
                                 </div>
                                 
@@ -252,7 +273,7 @@
                                                 <tr>
                                                     <td width="7.5%" style="vertical-align: top;">
                                                         <a href="#/{{attributes.author.attributes.username}}"><img onError="this.src='images/ic_anonymous.png';" src="{{secureUrl attributes.author.attributes.profilePicture._url}}" class="profilePictureComments hvr-pulse-grow" id="profilePicture"></a><br>
-                                                        {{#if attributes.author.attributes.verified}}<center><img src="images/ic_verified.png" title="{{author.name}} is a validated mag"></center>{{/if}}
+                                                        {{#if attributes.author.attributes.verified}}<center><a class="tooltipped" data-tooltip="{{author.name}} is a validated mag" data-position="bottom" data-delay="50"><img src="images/ic_verified.png"></a></center>{{/if}}
                                                     </td>
                                                     <td width="auto" style="vertical-align: top;">
 
@@ -287,6 +308,12 @@
                                     </form>
                                 </div>
                             {{/if}}
+
+                            <script>
+                                $(document).ready(function(){
+                                    $('.tooltipped').tooltip({delay: 50});
+                                  });
+                            <{{!}}/script>                            
 
                             <script>
                             $(document).ready(function() {
@@ -397,7 +424,7 @@
                                 {{/if}}<br>
                                 <p>
                             </div>
-                            {{#if verified}}<center><img src="images/ic_verified.png" title="{{name}} is a validated mag"></center>{{/if}}
+                            {{#if verified}}<center><a class="tooltipped" data-tooltip="{{name}} is a validated mag" data-position="bottom" data-delay="50"><img src="images/ic_verified.png"></a></center>{{/if}}
 
                             <a href="#/{{username}}" style="font-size: 22px;">{{name}}</a>&nbsp;<a href="#/{{username}}" class="author-username" style="font-size: #16px; color: #a3a3a3;">@{{username}}</a><br>
                             <span style="font-size: 16px; color: #000;">{{bio}}</span><br>
@@ -423,7 +450,7 @@
                                             
                                             <div class="fade-in one">
                                                 <a href="#/{{author.username}}"><img class="hvr-pulse-grow profilePicture" onError="this.src='images/ic_anonymous.png';" src="{{secureUrl author.profilePicture.url}}" style="vertical-align: middle; width: 60px; height: 60px; border-radius: 133px;" id="profilePicture"></a><br>
-                                                {{#if author.verified}}<center><img src="images/ic_verified.png" title="{{author.name}} is a validated mag"></center>{{/if}}
+                                                {{#if author.verified}}<center><a class="tooltipped" data-tooltip="{{author.name}} is a validated mag" data-position="bottom" data-delay="50"><img src="images/ic_verified.png"></a></center>{{/if}}
                                             </div>
                                         </td>
                                         <td style="width: 100%;">
@@ -441,9 +468,16 @@
                                             </div>
                                         </td>
                                         <td style="vertical-align: top;">
-                                        {{#if ../blogAdmin}}
-                                            <a href="#" onClick="return false;"><span class="delete-container" style="cursor: pointer" data-blog-id="{{objectId}}"><span class="typcn typcn-trash hvr-pulse-grow" style="color: gray; font-size: 30px;"></span></span></a>
-                                        {{/if}}
+                                            <a href="#" onClick="return false;" class="tooltipped" data-tooltip="Options" data-position="right" data-delay="50"><span class="options-container" style="cursor: pointer" data-blog-id="{{objectId}}"><span class="typcn typcn-arrow-sorted-down hvr-pulse-grow" style="color: gray; font-size: 30px;"></span></span></a>
+                                            <div class="options-div-hidden options-div-{{objectId}}" style="background: #efefef; border-radius: 6px; padding: 3px;">
+                                                {{#if ../blogAdmin}}
+                                                <a href="#" onClick="return false;" class="tooltipped" data-tooltip="Delete this Yeet?" data-position="right" data-delay="50"><span class="delete-container" style="cursor: pointer" data-blog-id="{{objectId}}"><span class="typcn typcn-delete hvr-pulse-grow" style="color: gray; font-size: 30px;"></span></span></a>
+                                                {{/if}}
+                                                <a href="#" onClick="return false;" class="tooltipped" data-tooltip="Copy link to Yeet" data-position="right" data-delay="50"><span class="copy-container" style="cursor: pointer" data-blog-id="{{objectId}}"><span class="typcn typcn-clipboard hvr-pulse-grow" style="color: gray; font-size: 30px;"></span></span></a>
+                                                <!-- <a href="#" onClick="return false;" class="tooltipped" data-tooltip="Report Yeet" data-position="right" data-delay="50"><span class="report-container" style="cursor: pointer" data-blog-id="{{objectId}}"><span class="typcn typcn-volume-up hvr-pulse-grow" style="color: gray; font-size: 30px;"></span></span></a>
+                                                <a href="#" onClick="return false;" class="tooltipped" data-tooltip="Mute {{author.name}}" data-position="right" data-delay="50"><span class="mute-container" style="cursor: pointer" data-blog-id="{{objectId}}"><span class="typcn typcn-volume-mute hvr-pulse-grow" style="color: gray; font-size: 30px;"></span></span></a>
+                                                <a href="#" onClick="return false;" class="tooltipped" data-tooltip="Block {{author.name}}" data-position="right" data-delay="50"><span class="block-container" style="cursor: pointer" data-blog-id="{{objectId}}"><span class="typcn typcn-user-delete-outline hvr-pulse-grow" style="color: gray; font-size: 30px;"></span></span></a> -->
+                                            </div>
                                         </td>
                                     </tr>
                                 </table>
@@ -457,6 +491,18 @@
                         <!-- <center >
                             <img src="images/rolling.gif" class="loading-image">
                         </center> -->
+
+                    <script>
+                        $(document).ready(function(){
+                            $('.options-div-hidden').hide();
+                          });
+                    <{{!}}/script> 
+
+                    <script>
+                        $(document).ready(function(){
+                            $('.tooltipped').tooltip({delay: 50});
+                          });
+                    <{{!}}/script>    
 
                     <script>
                         $(document).ready(function() {
@@ -552,7 +598,66 @@
 
                 <!-- My Clubs Template -->
                 <script id="myclubs-tpl" type="text/x-handlebars-template">
-                    <h1>My Clubs</h1>
+                    <center><h4>My Clubs</h4></center>
+
+                    <br>
+
+                    <center><h4>Explore Public Clubs</h4></center>
+
+                    <div class="row">
+                        <div class="blog-post">
+                            {{#each club}}
+
+                                <a href="#/group/{{objectId}}" style="color: #000;" data-blog-id="{{objectId}}" class="notification-container">
+                                    <div class="col s12 m12 l12 object-hover {{objectId}}" style="border-radius: 12px; margin-bottom: 5px;">
+
+                                            <table style="width: 0% !important;">
+                                                <tr>
+                                                    <td style="vertical-align: top;">
+                                                        <!-- Profile Picture -->
+                                                        <div class="fade-in one">
+                                                            <a href="#/group/{{objectId}}"><img class="hvr-pulse-grow profilePicture" onError="this.src='images/ic_anonymous.png';" src="{{secureUrl profilePicture.url}}" style="vertical-align: middle; width: 60px; height: 60px; border-radius: 133px;" id="profilePicture"></a><br>
+                                                            {{#if premium}}<center><a class="tooltipped" data-tooltip="{{name}} is a premium club" data-position="bottom" data-delay="50"><img src="images/ic_verified.png"></a></center>{{/if}}
+                                                        </div>
+                                                    </td>
+                                                    <td style="width: 100%; vertical-align: top;">
+                                                        <!-- Content -->
+                                                        <div>
+
+                                                            <a style="color: #000;" href="#/group/{{objectId}}">{{name}}</a>
+                                                            <br>
+                                                            <span style="color: gray;">{{description}}</span>
+
+                                                            <!-- <span class="like-count-container" style="cursor: pointer" title="{{likeTitle}}" data-proceed="{{likeProceed}}" data-blog-id="{{objectId}}"><span class="typcn typcn-flash hvr-pulse-grow" style="color: red; font-size: 30px;"></span> {{likedBy.length}}</span>
+                                                            </div> -->
+
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <a class="tooltipped" data-tooltip="I fuck with the vision {{name}} lets link fam Im tryna build" data-position="bottom" data-delay="50"><span class="typcn typcn-link-outline hvr-pulse-grow" style="color: blueviolet; font-size: 30px;"></span></span></a>
+                                                    </td>
+                                                </tr>
+                                            </table>
+
+                                    </div>
+                                </a>
+
+                            {{/each}}
+                        </div>
+                    </div>
+
+                     <script>
+                        $(document).ready(function(){
+                            $('.tooltipped').tooltip({delay: 50});
+                          });
+                    <{{!}}/script>
+
+                    <script>
+                        $("div.lazy").lazyload({
+                            effect : "fadeIn"
+                        });
+                    <{{!}}/script>                   
+
                 </script>
 
                 <!-- Notifications Template -->
@@ -561,7 +666,7 @@
 
                         <div class="blog-post">
 
-                            {{#each blog}}
+                            {{#each notification}}
                             <a href="#/yeet/{{commentObjectId}}" style="color: #000;" data-blog-id="{{objectId}}" class="notification-container">
                             <div class="col s12 m12 l12 object-hover {{objectId}}" style="border-radius: 12px; {{#if read}}background: #fff;{{else}}background: #efefef{{/if}}; margin-bottom: 5px;">
 
@@ -590,25 +695,19 @@
                                                 <!-- Profile Picture -->
                                                 <div class="fade-in one">
                                                     <a href="#/{{author.username}}"><img class="hvr-pulse-grow profilePicture" onError="this.src='images/ic_anonymous.png';" src="{{secureUrl author.profilePicture.url}}" style="vertical-align: middle; width: 60px; height: 60px; border-radius: 133px;" id="profilePicture"></a><br>
-                                                    {{#if author.verified}}<center><img src="images/ic_verified.png" title="{{author.name}} is a validated mag"></center>{{/if}}
+                                                    {{#if author.verified}}<center><a class="tooltipped" data-tooltip="{{author.name}} is a validated mag" data-position="bottom" data-delay="50"><img src="images/ic_verified.png"></a></center>{{/if}}
                                                 </div>
                                             </td>
                                             <td style="width: 100%; vertical-align: top;">
                                                 <!-- Content -->
                                                 <div>
 
-                                                    <a style="color: #000;" href="#/{{author.username}}">{{author.name}}</a>&nbsp;<a style="color: #a3a3a3;" href="#/{{author.username}}">@{{author.username}}</a>{{notificationText}}
+                                                    <a style="color: #039be5;" href="#/{{author.username}}">{{author.name}}</a>&nbsp;<a style="color: #a3a3a3;" href="#/{{author.username}}">@{{author.username}}</a>{{notificationText}}
                                                     <br>
 
-                                                    {{#ifEquals notificationType "typeComment"}}
-                                                    <span style="color: black;">{{notificationBody}}</span><br>
-                                                    {{/ifEquals}}
-
-                                                    {{#ifEquals notificationType "typeLike"}}
-                                                    <span style="color: #a3a3a3;">{{notificationBody}}</span><br>
-                                                    {{/ifEquals}}
+                                                    <span style="color: {{#ifEquals notificationType "typeComment"}}black;{{/ifEquals}}{{#ifEquals notificationType "typeLike"}}#a3a3a3;{{/ifEquals}}">{{notificationBody}}</span><br>
                                                     
-                                                    <a href="#/group/{{group.objectId}}" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="I am a tooltip"><span style="{{#ifEquals group.objectId ../user.attributes.currentGroup.id}}color: deeppink;{{else}}color: lightsteelblue;{{/ifEquals}}">{{group.name}}</span></a>{{#ifEquals notificationType "typeComment"}}<br>{{/ifEquals}}
+                                                    <a href="#/group/{{group.objectId}}" class="tooltipped" data-position="bottom" data-delay="50" {{#ifEquals group.objectId ../user.attributes.currentGroup.id}}data-tooltip="Current Club"{{else}}data-tooltip="Switch to {{group.name}}?"{{/ifEquals}}><span style="{{#ifEquals group.objectId ../user.attributes.currentGroup.id}}color: deeppink;{{else}}color: lightsteelblue;{{/ifEquals}}">{{group.name}}</span></a>{{#ifEquals notificationType "typeComment"}}<br>{{/ifEquals}}
 
                                                     {{#if image.url}}
                                                     <a class="view" href="{{secureUrl image.url}}"><img class="hvr-pop" src="{{secureUrl image.url}}" style="vertical-align: middle; border-radius: 33px;"></a>
@@ -1081,15 +1180,7 @@
 <script src="js/parse-1.2.19.js"></script>
 <script src="js/blog.js"></script>
 
-<!-- Cache Busting -->
-<script type="text/javascript">
-var cacheBust = ['js/blog.js'];   
-for (i=0; i < cacheBust.length; i++){
-     var el = document.createElement('script');
-     el.src = cacheBust[i]+"?v=" + Math.random();
-     document.getElementsByTagName('head')[0].appendChild(el);
-}
-</script>
+
 
 </body>
 </html>

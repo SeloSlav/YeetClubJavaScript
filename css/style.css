@@ -738,7 +738,7 @@ nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
 .object-hover:hover {
   position: relative;
   width: 100%;
-  background: #CFD8DC;
+  background: #fff;
   -webkit-box-shadow:0 0 20px #CFD8DC; 
   -moz-box-shadow: 0 0 20px #CFD8DC; 
   box-shadow:0 0 20px #CFD8DC;

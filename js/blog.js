@@ -1,4 +1,6 @@
 var $blogs = [];
+var $notifications = [];
+var $clubs = [];
 var $comments = [];
 var global_title = [];
 var global_description = [];
@@ -136,6 +138,7 @@ $(function() {
             var thisObj = this;
             var marketFeedQuery = new Parse.Query(BlogApp.Models.Blog);
             marketFeedQuery.equalTo('senderParseObjectId', BlogApp.blog);
+            marketFeedQuery.include('author');
             marketFeedQuery.find({
                 success: function(comments) {
                     thisObj.set({
@@ -149,8 +152,35 @@ $(function() {
                     }).save(null, {
                         success: function(comment) {
 
-                            // console.log("Blog ID: " + BlogApp.blog.id);
+                            // Creation Reply Notification object
+                            var Notification = Parse.Object.extend("Notification");
+                            var newNotification = new Notification();
 
+                            // console.log("recipientId: " + BlogApp.blog.get('author').toJSON().objectId);
+
+                            if (Parse.User.current().id != BlogApp.blog.get('author').toJSON().objectId) {
+                                newNotification.set("author", Parse.User.current());
+                                newNotification.set("notificationBody", form.content);
+                                newNotification.set("senderName", Parse.User.current().get('username'));
+                                newNotification.set("recipientId", BlogApp.blog.get('author').toJSON().objectId);
+                                newNotification.set("commentObjectId", BlogApp.blog.id);
+                                newNotification.set("notificationText", " reeped to your yeet!");
+                                newNotification.set("notificationType", "typeComment");
+                                newNotification.set("read", false);
+                                newNotification.set("groupId", Parse.User.current().get('currentGroup'));
+
+                                newNotification.save(null, {
+                                  success: function(newNotification) {
+                                    console.log('New object created with objectId: ' + newNotification.id);
+                                  },
+                                  error: function(newNotification, error) {
+                                    // error is a Parse.Error with an error code and message.
+                                    console.log('Failed to create new object, with error code: ' + error.message);
+                                  }
+                                });
+                            }
+
+                            // Bump Yeet
                             var topLevelYeetQuery = new Parse.Query(BlogApp.Models.Blog);
                             topLevelYeetQuery.equalTo('objectId', BlogApp.blog.id);
                             topLevelYeetQuery.find({
@@ -167,6 +197,7 @@ $(function() {
                             });
 
                             window.location.reload();
+
                         },
                         error: function(comment, error) {
                             console.log(error);
@@ -210,6 +241,7 @@ $(function() {
         className: 'blog-post',
         events: {
             'click .delete-container': 'delete',
+            'click .options-container': 'yeetoptions'
         },
 
         delete: function(e) {
@@ -230,6 +262,12 @@ $(function() {
                     }
                 });
             }
+        },
+
+        yeetoptions: function(e) {
+            var optionsId = $(e.currentTarget).data('blog-id');
+            console.log(optionsId);
+            $('.options-div-' + optionsId).toggle();
         },
 
         render: function() {
@@ -257,6 +295,7 @@ $(function() {
         className: 'blog-sec',
         events: {
             'click .delete-container': 'delete',
+            'click .options-container': 'yeetoptions'
         },
 
         delete: function(e) {
@@ -277,6 +316,12 @@ $(function() {
                     }
                 });
             }
+        },
+
+        yeetoptions: function(e) {
+            var optionsId = $(e.currentTarget).data('blog-id');
+            console.log(optionsId);
+            $('.options-div-' + optionsId).toggle();
         },
 
         /*events: {
@@ -350,7 +395,7 @@ $(function() {
         },
 
         like: function(e) {
-            if (Parse.User.current() && $(e.currentTarget).data('proceed')) {
+            if (Parse.User.current()/* && $(e.currentTarget).data('proceed')*/) {
                 var bl = new BlogApp.Models.Blog();
 
                 var self = this,
@@ -358,62 +403,89 @@ $(function() {
                     query = new Parse.Query(BlogApp.Models.Blog);
                     query.include("author");
 
-                // LikeBY Conditions
-                var likers = attributes.likedBy, liked = false;
-                console.log(likers);
+                // likedBy conditions
+                var liked;
+                var likers;
 
-                for (j in likers) {
-                    if (likers[j] == Parse.User.current().id) {
-                        liked = true;
-                        break;
-                    }
-                }
+                bl.id = $(e.currentTarget).data('blog-id');
+                // console.log(bl.id);
 
-                if (liked) {
+                var LikedByYeet = Parse.Object.extend("Yeet");
+                var likedByQuery = new Parse.Query(LikedByYeet);
+                likedByQuery.equalTo("objectId", bl.id);
+                likedByQuery.find({
+                    success: function(results) {
+                        // console.log(results);
+
+                        for (var i = 0; i < results.length; i++) {
+
+                            var likers = results[i].get('likedBy');
+                            console.log("Likers: " + likers);
+                            
+                            for (j in likers) {
+                                if (likers[j].includes(Parse.User.current().id)) {
+                                    liked = true;
+                                    console.log(liked);
+                                    break;
+                                }
+                            }
+
+                            if (liked) {
                     Materialize.toast('You already liked this Yeet', 4000, 'red');
                 } else if (!liked) {
 
                     // Update Like values
                     bl.id = $(e.currentTarget).data('blog-id');
-                    bl.increment('likesCount');
+                    // bl.increment('likesCount');
                     bl.addUnique('likedBy', Parse.User.current().toJSON().objectId);
                     bl.save({}, {
                         success: function(bl) {
-                            $(e.currentTarget).attr('title', 'Yeet liked!');
-                            /*$(e.currentTarget).find('span').text(bl.get('likesCount'));*/
-                            // window.location.reload();
-                            Materialize.toast('Succ! Yeet Liked.', 4000, 'green');
-                        },
+
+                                $(e.currentTarget).find('span').text(bl.get('likedBy').length);
+                                $('.likedByLength').hide();
+                                $(e.currentTarget).attr('title', 'Yeet liked!');
+                                // window.location.reload();
+                                Materialize.toast('Succ! Yeet Liked.', 4000, 'green');
+
+                                // console.log(bl.get('likedBy'));
+
+                                // Creation Like Notification object
+                                var Notification = Parse.Object.extend("Notification");
+                                var newNotification = new Notification();
+
+                                newNotification.set("author", Parse.User.current());
+                                newNotification.set("notificationBody", attributes.notificationText);
+                                newNotification.set("senderName", Parse.User.current().get('username'));
+                                newNotification.set("recipientId", attributes.author.objectId);
+                                newNotification.set("commentObjectId", bl.id);
+                                newNotification.set("notificationText", " liked your yeet!");
+                                newNotification.set("notificationType", "typeLike");
+                                newNotification.set("read", false);
+                                newNotification.set("groupId", Parse.User.current().get('currentGroup'));
+
+                                newNotification.save(null, {
+                                  success: function(newNotification) {
+                                    console.log('New object created with objectId: ' + newNotification.id);
+                                  },
+                                  error: function(newNotification, error) {
+                                    // error is a Parse.Error with an error code and message.
+                                    console.log('Failed to create new object, with error code: ' + error.message);
+                                  }
+                                });
+
+                            },
                         error: function(bl, e1) {
                             console.log(e1);
                         }
                     });
 
-                    // Creation Like Notification object
-                    var Notification = Parse.Object.extend("Notification");
-                    var newNotification = new Notification();
-
-                    newNotification.set("author", Parse.User.current());
-                    newNotification.set("notificationBody", attributes.notificationText);
-                    newNotification.set("senderName", Parse.User.current().get('username'));
-                    newNotification.set("recipientId", attributes.author.objectId);
-                    newNotification.set("commentObjectId", bl.id);
-                    newNotification.set("notificationText", " liked your yeet!");
-                    newNotification.set("notificationType", "typeLike");
-                    newNotification.set("read", false);
-                    newNotification.set("groupId", Parse.User.current().get('currentGroup'));
-
-                    newNotification.save(null, {
-                      success: function(newNotification) {
-                        console.log('New object created with objectId: ' + newNotification.id);
-                      },
-                      error: function(newNotification, error) {
-                        // error is a Parse.Error with an error code and message.
-                        console.log('Failed to create new object, with error code: ' + error.message);
-                      }
-                    });
+                    liked = true;
 
                 }
+
+                        }
+                    }
+                });
 
             }
         },
@@ -575,11 +647,25 @@ $(function() {
     // My Clubs View
     BlogApp.Views.MyClubs = Parse.View.extend({
         template: Handlebars.compile($('#myclubs-tpl').html()),
-        className: 'blog-sec',
+        className: 'blog-post',
 
         render: function() {
-            this.$el.html(this.template());
-        }
+            Parse.User.current().fetch();
+
+            var collection = {
+                clubs: []
+            };
+
+            collection = {
+                user: currentUser,
+                club: this.options.clubs
+            };
+
+            console.log(collection);
+
+            // console.log(this.options.blogs);
+            this.$el.html(this.template(collection));
+        },
     });
 
     // Notifications View
@@ -628,7 +714,7 @@ $(function() {
             Parse.User.current().fetch();
 
             var collection = {
-                blog: []
+                notification: []
             };
 
             console.log(currentUser);
@@ -636,7 +722,7 @@ $(function() {
             // console.log(this)
             collection = {
                 user: currentUser,
-                blog: this.options.blogs
+                notification: this.options.notifications
             };
 
             // console.log(this.options.blogs);
@@ -960,9 +1046,13 @@ $(function() {
                     success: function(blogs) {
 
                         for (var i in blogs) {
-                            var des = blogs[i].toJSON();
-                            des.author = blogs[i].get('author').toJSON();
-                            $blogs.push(des);
+                            var blog = blogs[i].toJSON();
+
+                            if (blogs[i].get('author') != null) {
+                                blog.author = blogs[i].get('author').toJSON();
+                            }
+
+                            $blogs.push(blog);
                         }
 
                         // console.log(blogs);
@@ -986,30 +1076,31 @@ $(function() {
             BlogApp.fn.setPageType('admin');
 
             var currentUser = Parse.User.current();
+            var currentGroup = Parse.User.current().get('currentGroup');
 
             $blogs = [];
             var q1 = new Parse.Query(BlogApp.Models.Blog).equalTo("author", currentUser);
             var q2 = new Parse.Query(BlogApp.Models.Blog).equalTo("downloaders", currentUser.id);
-            var designsQuery = Parse.Query.or(q1, q2).skip($blogs.length).descending('lastReplyUpdatedAt').limit(50).include('author');
+            var designsQuery = Parse.Query.or(q1, q2).skip($blogs.length).equalTo('groupId', currentGroup).descending('lastReplyUpdatedAt').limit(50).include('author');
             designsQuery.find({
-                success: function(designs) {
+                success: function(blogs) {
 
-                    for (var i in designs) {
-                        var des = designs[i].toJSON();
-                        des.author = designs[i].get('author').toJSON();
-                        $blogs.push(des);
+                    for (var i in blogs) {
+                        var blog = blogs[i].toJSON();
+                        blog.author = blogs[i].get('author').toJSON();
+                        $blogs.push(blog);
                     }
 
                     BlogApp.fn.renderView({
                         View: BlogApp.Views.Welcome,
                         data: {
                             user: currentUser,
-                            designs: $blogs
+                            blogs: $blogs
                         }
 
                     });
                 },
-                error: function(designs, e) {
+                error: function(blogs, e) {
                     console.log(JSON.stringify(e));
                 }
             });
@@ -1055,41 +1146,6 @@ $(function() {
                 model = model.toJSON();
                 model.author = author.toJSON();
 
-                var likers = blog[0].get('likedBy'),
-                    liked = false;
-                var downloaders = blog[0].get('repliedToBy'),
-                    downloaded = false;
-
-                for (var j in downloaders) {
-                    if (downloaders[j] == Parse.User.current().id) {
-                        downloaded = true;
-                        break;
-                    }
-                }
-
-                for (j in likers) {
-                    if (likers[j] == Parse.User.current().id) {
-                        liked = true;
-                        break;
-                    }
-                }
-
-                if (liked) {
-                    model.likeTitle = "You already liked this";
-                } else {
-                    model.likeTitle = "Like";
-                }
-
-                if (downloaded) {
-                    model.downloadTitle = "You have downloaded it.";
-                } else {
-                    model.downloadTitle = "Download";
-                    model.downloadProceed = true;
-                }
-
-                model.likeProceed = !liked;
-                model.downloadProceed = !downloaded;
-
                 BlogApp.fn.renderView({
                     View: BlogApp.Views.Blog,
                     data: {
@@ -1116,16 +1172,46 @@ $(function() {
         },
 
         myclubs: function() {
-            BlogApp.fn.setPageType('myclubs');
-            BlogApp.fn.renderView({
-                View: BlogApp.Views.MyClubs
-            });
+            BlogApp.fn.setPageType('clubs');
+
+            $clubs = [];
+
+            if (!currentUser) {
+                Parse.history.navigate('#/register', {
+                    trigger: true
+                });
+                // console.log("There is no logged in user.");
+            } else {
+                var clubsQuery = new Parse.Query("Group").equalTo('private', false).ascending('name').limit(300);
+                clubsQuery.find({
+                    success: function(clubs) {
+
+                        for (var i in clubs) {
+                            var club = clubs[i].toJSON();
+                            $clubs.push(club);
+                        }
+
+                        console.log(clubs);
+
+                        BlogApp.fn.renderView({
+                            View: BlogApp.Views.MyClubs,
+                            data: {
+                                clubs: $clubs
+                            }
+
+                        });
+                    },
+                    error: function(clubs, e) {
+                        console.log(clubs.stringify(e));
+                    }
+                });
+            }
         },
 
         notifications: function() {
             BlogApp.fn.setPageType('notifications');
 
-            $blogs = [];
+            $notifications = [];
 
             if (!currentUser) {
                 Parse.history.navigate('#/register', {
@@ -1133,32 +1219,34 @@ $(function() {
                 });
                 console.log("There is no logged in user.");
             } else {
-                // console.log("Current User: " + currentUser);
-                var currentGroup = currentUser.get('currentGroup');
                 var currentUserId = currentUser.id;
                 var designsQuery = new Parse.Query("Notification").equalTo('recipientId', currentUserId).include('author').include('groupId').descending('createdAt').limit(300);
                 designsQuery.find({
-                    success: function(blogs) {
+                    success: function(notifications) {
 
-                        for (var i in blogs) {
-                            var des = blogs[i].toJSON();
-                            des.author = blogs[i].get('author').toJSON();
-                            $blogs.push(des);
-                            des.group = blogs[i].get('groupId').toJSON();
-                            $blogs.push(des);
+                        for (var i in notifications) {
+                            var notification = notifications[i].toJSON();
+                            if (notifications[i].get('author') != null) {
+                                notification.author = notifications[i].get('author').toJSON();
+                            }
+
+                            if (notifications[i].get('groupId') != null) {
+                                notification.group = notifications[i].get('groupId').toJSON();
+                            }
+                            $notifications.push(notification);
                         }
 
-                        // console.log(blogs);
+                        console.log(notifications);
 
                         BlogApp.fn.renderView({
                             View: BlogApp.Views.Notifications,
                             data: {
-                                blogs: $blogs
+                                notifications: $notifications
                             }
 
                         });
                     },
-                    error: function(blogs, e) {
+                    error: function(notifications, e) {
                         console.log(JSON.stringify(e));
                     }
                 });
