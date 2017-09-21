@@ -48,8 +48,8 @@
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
     <script src="js/jquery.lazyload.js"></script>
 
-    <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+    <!-- Materialize JS -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/js/materialize.min.js"></script>
 
     <!-- Linkify -->
     <script src="js/linkify.js"></script>
@@ -608,7 +608,7 @@
                                                     <span style="color: #a3a3a3;">{{notificationBody}}</span><br>
                                                     {{/ifEquals}}
                                                     
-                                                    <a href="#/group/{{group.objectId}}" class="btn tooltipped" data-position="bottom" data-delay="50" data-tooltip="I am a tooltip"><span style="{{#ifEquals group.objectId ../user.attributes.currentGroup.id}}color: deeppink;{{else}}color: lightsteelblue;{{/ifEquals}}">{{group.name}}</span></a>{{#ifEquals notificationType "typeComment"}}<br>{{/ifEquals}}
+                                                    <a href="#/group/{{group.objectId}}" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="I am a tooltip"><span style="{{#ifEquals group.objectId ../user.attributes.currentGroup.id}}color: deeppink;{{else}}color: lightsteelblue;{{/ifEquals}}">{{group.name}}</span></a>{{#ifEquals notificationType "typeComment"}}<br>{{/ifEquals}}
 
                                                     {{#if image.url}}
                                                     <a class="view" href="{{secureUrl image.url}}"><img class="hvr-pop" src="{{secureUrl image.url}}" style="vertical-align: middle; border-radius: 33px;"></a>
@@ -1080,6 +1080,16 @@
 <!-- Javascript -->
 <script src="js/parse-1.2.19.js"></script>
 <script src="js/blog.js"></script>
+
+<!-- Cache Busting -->
+<script type="text/javascript">
+var cacheBust = ['js/blog.js'];   
+for (i=0; i < cacheBust.length; i++){
+     var el = document.createElement('script');
+     el.src = cacheBust[i]+"?v=" + Math.random();
+     document.getElementsByTagName('head')[0].appendChild(el);
+}
+</script>
 
 </body>
 </html>

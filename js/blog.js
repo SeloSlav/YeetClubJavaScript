@@ -149,13 +149,16 @@ $(function() {
                     }).save(null, {
                         success: function(comment) {
 
+                            // console.log("Blog ID: " + BlogApp.blog.id);
+
                             var topLevelYeetQuery = new Parse.Query(BlogApp.Models.Blog);
                             topLevelYeetQuery.equalTo('objectId', BlogApp.blog.id);
                             topLevelYeetQuery.find({
                                 success: function(yeets) {
                                     for (i in yeets) {
+
                                         yeets[i].set('lastReplyUpdatedAt', new Date());
-                                        yeets[i].increment('repliedToBy', yeets[i].repliedToBy.push(Parse.User.current().id));
+                                        // yeets[i].addUnique('repliedToBy', Parse.User.current().toJSON().objectId); // This is problematic. The array won't update.
                                         yeets[i].increment('replyCount', 1);
                                         yeets[i].save();
                                     }
@@ -334,7 +337,7 @@ $(function() {
         className: 'blog-comment',
         events: {
             'submit .form-comment': 'submit',
-            'click .like-count-container': 'like',
+            'click .like-count-container': 'like'
         },
 
         submit: function(e) {
@@ -350,8 +353,14 @@ $(function() {
             if (Parse.User.current() && $(e.currentTarget).data('proceed')) {
                 var bl = new BlogApp.Models.Blog();
 
-                var likers = bl.get('likedBy'),
-                    liked = false;
+                var self = this,
+                    attributes = this.model,
+                    query = new Parse.Query(BlogApp.Models.Blog);
+                    query.include("author");
+
+                // LikeBY Conditions
+                var likers = attributes.likedBy, liked = false;
+                console.log(likers);
 
                 for (j in likers) {
                     if (likers[j] == Parse.User.current().id) {
@@ -362,53 +371,49 @@ $(function() {
 
                 if (liked) {
                     Materialize.toast('You already liked this Yeet', 4000, 'red');
+                } else if (!liked) {
+
+                    // Update Like values
+                    bl.id = $(e.currentTarget).data('blog-id');
+                    bl.increment('likesCount');
+                    bl.addUnique('likedBy', Parse.User.current().toJSON().objectId);
+                    bl.save({}, {
+                        success: function(bl) {
+                            $(e.currentTarget).attr('title', 'Yeet liked!');
+                            /*$(e.currentTarget).find('span').text(bl.get('likesCount'));*/
+                            // window.location.reload();
+                            Materialize.toast('Succ! Yeet Liked.', 4000, 'green');
+                        },
+                        error: function(bl, e1) {
+                            console.log(e1);
+                        }
+                    });
+
+                    // Creation Like Notification object
+                    var Notification = Parse.Object.extend("Notification");
+                    var newNotification = new Notification();
+
+                    newNotification.set("author", Parse.User.current());
+                    newNotification.set("notificationBody", attributes.notificationText);
+                    newNotification.set("senderName", Parse.User.current().get('username'));
+                    newNotification.set("recipientId", attributes.author.objectId);
+                    newNotification.set("commentObjectId", bl.id);
+                    newNotification.set("notificationText", " liked your yeet!");
+                    newNotification.set("notificationType", "typeLike");
+                    newNotification.set("read", false);
+                    newNotification.set("groupId", Parse.User.current().get('currentGroup'));
+
+                    newNotification.save(null, {
+                      success: function(newNotification) {
+                        console.log('New object created with objectId: ' + newNotification.id);
+                      },
+                      error: function(newNotification, error) {
+                        // error is a Parse.Error with an error code and message.
+                        console.log('Failed to create new object, with error code: ' + error.message);
+                      }
+                    });
+
                 }
-
-                bl.id = $(e.currentTarget).data('blog-id');
-                bl.increment('likesCount');
-                bl.addUnique('likedBy', Parse.User.current().toJSON().objectId);
-                bl.save({}, {
-                    success: function(bl) {
-                        $(e.currentTarget).attr('title', 'Yeet liked!');
-                        /*$(e.currentTarget).find('span').text(bl.get('likesCount'));*/
-                        // window.location.reload();
-                        Materialize.toast('Succ! Yeet Liked.', 4000, 'green');
-                    },
-                    error: function(bl, e1) {
-                        console.log(e1);
-                    }
-                });
-
-                var self = this,
-                attributes = this.model,
-                query = new Parse.Query(BlogApp.Models.Blog);
-                query.include("author");
-
-                console.log(attributes);
-
-                // Creation Like Notification object
-                var Notification = Parse.Object.extend("Notification");
-                var newNotification = new Notification();
-
-                newNotification.set("author", Parse.User.current());
-                newNotification.set("notificationBody", attributes.notificationText);
-                newNotification.set("senderName", Parse.User.current().get('username'));
-                newNotification.set("recipientId", attributes.author.objectId);
-                newNotification.set("commentObjectId", bl.id);
-                newNotification.set("notificationText", " liked your yeet!");
-                newNotification.set("notificationType", "typeLike");
-                newNotification.set("read", false);
-                newNotification.set("groupId", Parse.User.current().get('currentGroup'));
-
-                newNotification.save(null, {
-                  success: function(newNotification) {
-                    console.log('New object created with objectId: ' + newNotification.id);
-                  },
-                  error: function(newNotification, error) {
-                    // error is a Parse.Error with an error code and message.
-                    console.log('Failed to create new object, with error code: ' + error.message);
-                  }
-                });
 
             }
         },
