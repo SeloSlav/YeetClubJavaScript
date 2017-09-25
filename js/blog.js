@@ -580,7 +580,7 @@ $(function() {
 
             var Group = Parse.Object.extend("Group");
             var query = new Parse.Query(Group);
-            query.equalTo("objectId", "v30ajFHwnA");
+            query.equalTo("objectId", "Vqn9zEVflL");
             query.find({
                 success: function(results) {
                     alert("Registration successful!");
