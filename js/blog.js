@@ -580,15 +580,16 @@ $(function() {
 
             var Group = Parse.Object.extend("Group");
             var query = new Parse.Query(Group);
-            query.equalTo("objectId", "Vqn9zEVflL");
+            query.equalTo("objectId", "Vqn9zEVf1L");
             query.find({
                 success: function(results) {
                     alert("Registration successful!");
                     // Do something with the returned Parse.Object values
                     for (var i = 0; i < results.length; i++) {
                         var groupObject = results[i];
+                        console.log(groupObject + " exists!");
                         user.set("currentGroup", groupObject);
-                        user.set("myGroups", ["v30ajFHwnA"]);
+                        user.set("myGroups", ["Vqn9zEVf1L"]);
 
                         user.signUp(null, {
                             success: function(user) {
